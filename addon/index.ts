@@ -20,8 +20,10 @@ export function withHashSupport(AppRouter: typeof EmberRouter): typeof AppRouter
   return class RouterWithHashSupport extends AppRouter {
     constructor(...args: RouterArgs) {
       super(...args);
-
-      setupHashSupport(this);
+      // FastBoot support
+      if (typeof FastBoot === 'undefined') {
+        setupHashSupport(this);
+      }
     }
   };
 }
