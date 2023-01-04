@@ -67,19 +67,25 @@ export function scrollToHash(hash: string) {
 async function setupHashSupport(router: EmberRouter) {
   let initialURL: string | undefined;
   let owner = getOwner(router) as ApplicationInstance;
+  
+  // Checks if setInterval is available; otherwise, set the URL straight away
+  if (setInterval)
+    await new Promise((resolve) => {
+      let interval = setInterval(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let { currentURL } = router as any; /* Private API */
 
-  await new Promise((resolve) => {
-    let interval = setInterval(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let { currentURL } = router as any; /* Private API */
-
-      if (currentURL) {
-        clearInterval(interval);
-        initialURL = currentURL;
-        resolve(null);
-      }
-    }, 100);
-  });
+        if (currentURL) {
+          clearInterval(interval);
+          initialURL = currentURL;
+          resolve(null);
+        }
+      }, 100);
+    });
+  else {
+      let { currentURL } = router as any;
+      initialURL = currentURL;
+  }
 
   if (isDestroyed(owner) || isDestroying(owner)) {
     return;
